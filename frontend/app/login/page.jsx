@@ -29,36 +29,32 @@ export default function LoginPage() {
   };
 
   return (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600 p-4">
-
-    <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl relative animate-fadeIn">
-
-      {/* Icon bulat */}
-      <div className="flex justify-center -mt-16 mb-6">
-        <div className="bg-white shadow-lg p-4 rounded-full">
-          <span className="text-blue-600 text-3xl font-bold">✿</span>
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-300 to-blue-600 relative">
+    {/* ICON BUNGA */}
+      <div className="absolute top-24 flex justify-center w-full">
+        <div className="bg-white p-4 rounded-full shadow-md border border-gray-200">
+        <span className="text-3xl">🌼</span>
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
-        Login
-      </h1>
+    <div className="bg-white p-10 rounded-2xl shadow-lg w-[430px] mt-16 border border-blue-100 animate-fadeIn">
+        <h1 className="text-2xl font-bold text-blue-700 text-center mb-6">
+          Login
+        </h1>
 
       {/* Username */}
-      <label className="text-gray-600 text-sm mb-1 block">Username</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
       <input
-        className="w-full border border-gray-300 p-3 rounded-lg mb-4
-                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none mb-4"
         placeholder="Enter your username"
         onChange={(e) => setUsername(e.target.value)}
       />
 
       {/* Password */}
-      <label className="text-gray-600 text-sm mb-1 block">Password</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
       <input
         type="password"
-        className="w-full border border-gray-300 p-3 rounded-lg mb-4
-                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none mb-4"
         placeholder="Enter your password"
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -66,17 +62,16 @@ export default function LoginPage() {
       {/* Button */}
       <button
         onClick={handleLogin}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold
-                   hover:bg-blue-700 transition-all shadow-md"
+        className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all"
       >
         Login
       </button>
 
       {/* Message */}
-      <p className="text-center mt-4 text-gray-700 text-sm">{message}</p>
+      <p className="text-center mt-4 text-gray-600">{message}</p>
 
       {/* Links bawah */}
-      <div className="flex justify-between mt-6 text-sm text-gray-600">
+      <div className="flex justify-between mt-6 text-sm text-gray-700">
         <button className="hover:underline">Forgot Password?</button>
         <button onClick={() => router.push("/register")} className="hover:underline">Register Now</button>
       </div>

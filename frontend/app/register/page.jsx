@@ -26,8 +26,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-      <div className="w-full max-w-sm bg-white shadow-xl rounded-2xl p-8 border border-blue-100 animate-fadeIn">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 relative">
+      {/* ICON BUNGA */}
+      <div className="absolute top-24 flex justify-center w-full">
+        <div className="bg-white p-4 rounded-full shadow-md border border-gray-200">
+        <span className="text-3xl">🌼</span>
+        </div>
+      </div>
+
+      <div className="bg-white p-10 rounded-2xl shadow-lg w-[430px] mt-16 border border-blue-100 animate-fadeIn">
         <h1 className="text-2xl font-bold text-blue-700 text-center mb-6">
           Create Account
         </h1>
