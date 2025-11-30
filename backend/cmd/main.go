@@ -63,6 +63,10 @@ func main() {
 	app.Post("/register", registerHandler)
 	app.Post("/login", loginHandler)
 
+	//Edit Title
+	app.Get("/title", authMiddleware, getTitle)
+	app.Put("/title", authMiddleware, updateTitle)
+
 	// Notes group with auth middleware
 	notes := app.Group("/notes", authMiddleware)
 	notes.Get("/", getNotes)
@@ -89,6 +93,11 @@ func runMigrations() error {
 		created_at TIMESTAMP DEFAULT now()
 	);
 	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`ALTER TABLE users ADD COLUMN IF NOT EXISTS notes_title VARCHAR(100) DEFAULT 'My Notes';`)
 	if err != nil {
 		return err
 	}
@@ -532,4 +541,38 @@ func joinNoteByToken(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"message": "Joined note successfully", "note_id": noteID})
+}
+
+// GET title
+func getTitle(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int)
+
+	var title string
+	err := db.QueryRow("SELECT notes_title FROM users WHERE id=$1", userID).Scan(&title)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to get title: " + err.Error()})
+	}
+	return c.JSON(fiber.Map{"title": title})
+}
+
+// PUT update title
+func updateTitle(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int)
+
+	var payload struct {
+		Title string `json:"title"`
+	}
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+	title := strings.TrimSpace(payload.Title)
+	if title == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Title cannot be empty"})
+	}
+
+	_, err := db.Exec("UPDATE users SET notes_title=$1 WHERE id=$2", title, userID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update title: " + err.Error()})
+	}
+	return c.JSON(fiber.Map{"message": "Title updated", "title": title})
 }

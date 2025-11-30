@@ -34,13 +34,27 @@ export default function NotesPage() {
   const router = useRouter();
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const [title, setTitle] = useState("My Notes");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+
   useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    fetchNotes();
-  }, []);
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+  fetchTitle();
+  fetchNotes();
+}, []);
+
+const fetchTitle = async () => {
+  const res = await fetch("http://localhost:8000/title", {
+    headers: { Authorization: "Bearer " + token }
+  });
+  const data = await res.json();
+  if (data && data.title) setTitle(data.title);
+};
+
 
   const fetchNotes = async () => {
     const res = await fetch("http://localhost:8000/notes", {
@@ -147,6 +161,25 @@ export default function NotesPage() {
     fetchNotes();
   };
 
+  const saveTitle = async () => {
+  const res = await fetch("http://localhost:8000/title", {
+    method: "PUT",
+    headers: { 
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token 
+    },
+    body: JSON.stringify({ title: newTitle })
+  });
+
+  if (res.ok) {
+    setTitle(newTitle);
+    setIsEditingTitle(false);
+  } else {
+    alert("Gagal update title");
+  }
+};
+
+
   const logout = () => {
     localStorage.removeItem("token");
     router.push("/login");
@@ -162,7 +195,47 @@ export default function NotesPage() {
         <FiLogOut size={18} /> Logout
       </button>
 
-      <h1 className="text-center text-5xl font-bold text-blue-700 drop-shadow mb-10">✧ My Notes ✧</h1>
+      <div className="flex flex-col items-center mb-10 relative">
+  {!isEditingTitle ? (
+    <div className="relative group">
+      <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">
+        {title}
+      </h1>
+
+      {/* edit icon kanan bawah */}
+      <button
+        onClick={() => {
+          setNewTitle(title);
+          setIsEditingTitle(true);
+        }}
+        className="absolute -right-6 bottom-1 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 transition"
+      >
+        ✏️
+      </button>
+    </div>
+  ) : (
+    <div className="flex items-center gap-3">
+      <input
+        className="border p-2 rounded-xl"
+        value={newTitle}
+        onChange={(e) => setNewTitle(e.target.value)}
+      />
+      <button
+        className="px-3 py-1 bg-blue-600 text-white rounded-xl"
+        onClick={saveTitle}
+      >
+        Save
+      </button>
+      <button
+        className="px-3 py-1 bg-gray-300 rounded-xl"
+        onClick={() => setIsEditingTitle(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  )}
+</div>
+
 
       <div className="flex justify-center mb-8">
         <button onClick={() => setShowAddChoice(true)} className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-blue-700">
@@ -173,7 +246,7 @@ export default function NotesPage() {
       {/* grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 px-6">
         {notes.map((n) => (
-          <div key={n.id} className="bg-white p-5 rounded-3xl shadow-xl border border-blue-300 transform rotate-[-2deg] hover:rotate-0 transition-all">
+          <div key={n.id} className="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition">
             <p className="text-sm text-gray-500 mb-1">{n.date}</p>
             <p className="text-gray-800 text-lg font-medium whitespace-pre-wrap leading-relaxed">{n.content}</p>
 
@@ -209,7 +282,7 @@ export default function NotesPage() {
       {/* ADD CHOICE MODAL */}
       {showAddChoice && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
+          <div className="bg-white p-6 w-96 rounded-2xl shadow border border-gray-200">
             <h3 className="text-lg font-bold mb-4">Add</h3>
             <div className="flex flex-col gap-3">
               <button onClick={() => { setShowAddPopup(true); setShowAddChoice(false); }} className="py-2 bg-blue-600 text-white rounded">New Note</button>
@@ -223,7 +296,7 @@ export default function NotesPage() {
       {/* ADD NEW POPUP */}
       {showAddPopup && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
+          <div className="bg-white p-6 w-96 rounded-2xl shadow border border-gray-200">
             <h2 className="text-xl font-bold mb-4 text-blue-700">Add New Note</h2>
             <label>Date</label>
             <input type="date" className="w-full border rounded-xl p-2 mb-4" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
@@ -245,7 +318,7 @@ export default function NotesPage() {
       {/* JOIN POPUP */}
       {showJoinPopup && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
+          <div className="bg-white p-6 w-96 rounded-2xl shadow border border-gray-200">
             <h2 className="text-xl font-bold mb-4 text-blue-700">Join Note by Token</h2>
             <label>Token</label>
             <input type="text" className="w-full border rounded-xl p-2 mb-4" value={joinToken} onChange={(e) => setJoinToken(e.target.value)} />
@@ -260,7 +333,7 @@ export default function NotesPage() {
       {/* SHARE TOKEN MODAL */}
       {sharingNote && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 w-96 rounded-2xl shadow-xl">
+          <div className="bg-white p-6 w-96 rounded-2xl shadow border border-gray-200">
             <h2 className="text-xl font-bold mb-4 text-blue-700">Share Token</h2>
             <p className="mb-3 break-all">{shareToken}</p>
             <div className="flex justify-between">
